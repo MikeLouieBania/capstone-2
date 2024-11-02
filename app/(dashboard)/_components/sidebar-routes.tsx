@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart, Compass, Layout, List, MessageCircleMore } from "lucide-react";
+import { BarChart, Calendar, Compass, Layout, List, MessageCircleMore } from "lucide-react";
 import { SidebarItem } from "./sidebar-item";
 import { usePathname } from "next/navigation";
 
@@ -20,6 +20,11 @@ const guestRoutes = [
         label: "Virtual Assistant",
         href: "/assistant",
     },
+    {
+        icon: Calendar,
+        label: "Calendar ",
+        href: "/Calendar",
+    },
 ]
 
 const teacherRoutes = [
@@ -37,6 +42,11 @@ const teacherRoutes = [
         icon: MessageCircleMore,
         label: "Virtual Assistant",
         href: "/assistant",
+    },
+    {
+        icon: Calendar,
+        label: "Calendar ",
+        href: "/calendar",
     },
 ]
 
