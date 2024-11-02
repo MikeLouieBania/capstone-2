@@ -15,35 +15,61 @@ export async function PUT(
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
-        const userProgress = await db.userProgress.findFirst({
+        // First, try to find an existing progress record
+        let userProgress = await db.userProgress.findUnique({
             where: {
-                userId: userId,
-                chapterId: params.chapterId,
+                userId_chapterId: { 
+                    userId,
+                    chapterId: params.chapterId,
+                }    
             }
         });
 
         if (userProgress) {
-            // Update existing record
-            await db.userProgress.update({
+            // If a record exists, update it
+            userProgress = await db.userProgress.update({
                 where: {
-                    id: userProgress.id
+                    userId_chapterId: { 
+                        userId,
+                        chapterId: params.chapterId,
+                    }    
                 },
                 data: {
                     isCompleted
                 }
             });
         } else {
-            // Create new record
-            await db.userProgress.create({
+            // If no record exists, create a new one
+            userProgress = await db.userProgress.create({
                 data: {
                     userId,
                     chapterId: params.chapterId,
-                    isCompleted
+                    isCompleted,
                 }
             });
         }
 
-        return NextResponse.json({ message: "Progress updated" });
+        // Calculate the updated progress for the course
+        const publishedChapters = await db.chapter.findMany({
+            where: {
+                courseId: params.courseId,
+                isPublished: true
+            }
+        });
+
+        const completedChapters = await db.userProgress.count({
+            where: {
+                userId,
+                chapterId: {
+                    in: publishedChapters.map(chapter => chapter.id)
+                },
+                isCompleted: true
+            }
+        });
+
+        const progressPercentage = (completedChapters / publishedChapters.length) * 100;
+
+        return NextResponse.json({ userProgress, progress: progressPercentage });
     } catch (error) {
         console.log("[CHAPTER_ID_PROGRESS]", error);
         return new NextResponse("Internal Error", { status: 500 });
