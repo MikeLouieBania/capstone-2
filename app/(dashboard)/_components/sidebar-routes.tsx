@@ -1,75 +1,78 @@
 "use client";
 
-import { BarChart, Calendar, Compass, Layout, List, MessageCircleMore } from "lucide-react";
+import {
+  BarChart,
+  Calendar,
+  Compass,
+  Layout,
+  List,
+  MessageCircleMore,
+} from "lucide-react";
 import { SidebarItem } from "./sidebar-item";
 import { usePathname } from "next/navigation";
 
 const guestRoutes = [
-    {
-        icon: Layout,
-        label: "Dashboard",
-        href:  "/",
-    },
-    {
-        icon: Compass,
-        label: "Browse",
-        href:  "/search",
-    },
-    {
-        icon: MessageCircleMore,
-        label: "Virtual Assistant",
-        href: "/assistant",
-    },
-    {
-        icon: Calendar,
-        label: "Calendar ",
-        href: "/Calendar",
-    },
-]
+  {
+    icon: Layout,
+    label: "Dashboard",
+    href: "/",
+  },
+  {
+    icon: Compass,
+    label: "Browse",
+    href: "/search",
+  },
+  {
+    icon: MessageCircleMore,
+    label: "Virtual Assistant",
+    href: "/assistant",
+  },
+  {
+    icon: Calendar,
+    label: "Calendar ",
+    href: "/calendar",
+  },
+];
 
 const teacherRoutes = [
-    {
-        icon: List,
-        label: "Courses",
-        href:  "/teacher/courses",
-    },
-    {
-        icon: BarChart,
-        label: "Analytics",
-        href:  "/teacher/analytics",
-    },
-    {
-        icon: MessageCircleMore,
-        label: "Virtual Assistant",
-        href: "/assistant",
-    },
-    {
-        icon: Calendar,
-        label: "Calendar ",
-        href: "/calendar",
-    },
-]
+  {
+    icon: List,
+    label: "Courses",
+    href: "/teacher/courses",
+  },
+  {
+    icon: BarChart,
+    label: "Analytics",
+    href: "/teacher/analytics",
+  },
+  {
+    icon: MessageCircleMore,
+    label: "Virtual Assistant",
+    href: "/assistant",
+  },
+  {
+    icon: Calendar,
+    label: "Calendar ",
+    href: "/teacher/calendar",
+  },
+];
 
 export const SidebarRoutes = () => {
-    const pathname = usePathname();
-    const isTeacherPage = pathname?.includes("/teacher");
+  const pathname = usePathname();
+  const isTeacherPage = pathname?.includes("/teacher");
 
-    const routes = isTeacherPage ? teacherRoutes : guestRoutes;
-    
-    return(
+  const routes = isTeacherPage ? teacherRoutes : guestRoutes;
 
-        <div className="flex flex-col w-full">
-            {routes.map((route) => (
-                
-                <SidebarItem
-                key={route.href} 
-                icon={route.icon}
-                label={route.label}
-                href={route.href}
-                
-                />
-            ))}
-        </div>
-    )
-
-}
+  return (
+    <div className="flex flex-col w-full">
+      {routes.map((route) => (
+        <SidebarItem
+          key={route.href}
+          icon={route.icon}
+          label={route.label}
+          href={route.href}
+        />
+      ))}
+    </div>
+  );
+};
