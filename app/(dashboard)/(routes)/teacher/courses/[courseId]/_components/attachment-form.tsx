@@ -86,11 +86,6 @@ export const AttachmentForm = ({
                             <PlusCircle className="h-4 w-4 mr-2"/>
                             Add a file
                         </>
-                    )} {!isEditing && initialData.attachments && ( 
-                        <>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit image
-                        </>
                     )}
                 </Button>
             </div>

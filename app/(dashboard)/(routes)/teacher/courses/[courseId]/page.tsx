@@ -33,7 +33,7 @@ const CourseIdPage = async ({
                 position: "asc",
                }, 
             },
-            attachements: {
+            attachments: {
                 orderBy: {
                     createdAt: "desc",
                 },

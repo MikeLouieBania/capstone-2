@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import path from 'path';
-import fs from 'fs/promises';
 
 export async function POST(
   req: NextRequest,
@@ -54,12 +52,22 @@ export async function POST(
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const filename = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    const filePath = path.join(uploadDir, filename);
 
-    console.log("Saving file locally");
-    await fs.mkdir(uploadDir, { recursive: true });
-    await fs.writeFile(filePath, buffer);
+    console.log("Saving video to database");
+    await db.video.upsert({
+      where: { chapterId: params.chapterId },
+      update: {
+        filename,
+        data: buffer,
+        mimeType: file.type,
+      },
+      create: {
+        chapterId: params.chapterId,
+        filename,
+        data: buffer,
+        mimeType: file.type,
+      },
+    });
 
     console.log("Updating chapter with video URL");
     await db.chapter.update({
@@ -67,7 +75,7 @@ export async function POST(
         id: params.chapterId,
       },
       data: {
-        videoUrl: `/uploads/${filename}`,
+        videoUrl: `/api/courses/${params.courseId}/chapters/${params.chapterId}/video`,
       },
     });
 
@@ -75,6 +83,30 @@ export async function POST(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[CHAPTER_VIDEO_UPLOAD]', error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { courseId: string; chapterId: string } }
+) {
+  try {
+    const video = await db.video.findUnique({
+      where: { chapterId: params.chapterId },
+    });
+
+    if (!video) {
+      return new NextResponse("Video not found", { status: 404 });
+    }
+
+    const headers = new Headers();
+    headers.set('Content-Type', video.mimeType);
+    headers.set('Content-Disposition', `inline; filename="${video.filename}"`);
+
+    return new NextResponse(video.data, { headers });
+  } catch (error) {
+    console.error('[CHAPTER_VIDEO_GET]', error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

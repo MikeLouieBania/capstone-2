@@ -1,6 +1,5 @@
 "use client";
 
-import * as z from "zod";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { ImageIcon, Pencil, PlusCircle } from "lucide-react";
@@ -15,20 +14,12 @@ interface ImageFormProps {
     courseId: string;
 }
 
-const formSchema = z.object({
-    imageUrl: z.string().min(1, {
-        message: "Image is required",
-    }),
-});
-
 export const ImageForm = ({
     initialData,
     courseId
 }: ImageFormProps) => {
     const [isEditing, setIsEditing] = useState(false);
     const [file, setFile] = useState<File | null>(null);
-
-    const toggleEdit = () => setIsEditing((current) => !current);
 
     const router = useRouter();
     
@@ -48,16 +39,12 @@ export const ImageForm = ({
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await axios.post(`/api/courses/${courseId}/image`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            await axios.post(`/api/courses/${courseId}/image`, formData);
 
-            toast.success("Course updated");
-            toggleEdit();
+            toast.success("Course image updated");
+            setIsEditing(false);
             router.refresh();
-        } catch {
+        } catch (error) {
             toast.error("Something went wrong");
         }
     }
@@ -66,22 +53,22 @@ export const ImageForm = ({
         <div className="mt-6 border bg-slate-100 rounded-md p-4">
             <div className="font-medium flex items-center justify-between">
                 Course image
-                <Button onClick={toggleEdit} className="bg-transparent hover:bg-gray-100 text-gray-700">
-                    {isEditing && (
-                        <>Cancel</>
-                    )}
-                    {!isEditing && !initialData.imageUrl && (
+                <Button onClick={() => setIsEditing(!isEditing)} variant="ghost">
+                    {isEditing ? "Cancel" : (
                         <>
-                            <PlusCircle className="h-4 w-4 mr-4"/>
-                            Add an Image
+                            {initialData.imageUrl ? (
+                                <>
+                                    <Pencil className="h-4 w-4 mr-2" />
+                                    Edit image
+                                </>
+                            ) : (
+                                <>
+                                    <PlusCircle className="h-4 w-4 mr-2" />
+                                    Add an image
+                                </>
+                            )}
                         </>
                     )}
-                    {!isEditing && initialData.imageUrl && ( 
-                        <>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit image
-                        </>
-                    )}    
                 </Button>
             </div>
             {!isEditing && (
@@ -92,10 +79,10 @@ export const ImageForm = ({
                 ) : (
                     <div className="relative aspect-video mt-2">
                         <Image 
-                            alt="upload" 
+                            alt="Course image" 
                             fill 
                             className="object-cover rounded-md"
-                            src={initialData.imageUrl}
+                            src={`/api/courses/${courseId}/image?v=${Date.now()}`}
                         />
                     </div>                    
                 )
@@ -105,7 +92,7 @@ export const ImageForm = ({
                     <input
                         type="file"
                         onChange={handleFileChange}
-                        accept="image/*,video/*"
+                        accept="image/*"
                         className="block w-full text-sm text-slate-500
                             file:mr-4 file:py-2 file:px-4
                             file:rounded-full file:border-0
@@ -119,9 +106,6 @@ export const ImageForm = ({
                             Upload {file.name}
                         </Button>
                     )}
-                    <div className="text-xs text-muted-foreground mt-4">
-                        16:9 aspect ratio recommended
-                    </div>
                 </div>
             )}
         </div>

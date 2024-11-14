@@ -1,5 +1,6 @@
 import Navbar from "./_components/navbar";
 import { Sidebar } from "./_components/sidebar";
+import { ChakraProvider } from '@chakra-ui/react';
 const DashboardLayout = ({
     children
 }: {
