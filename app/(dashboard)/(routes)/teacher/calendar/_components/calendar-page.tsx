@@ -202,7 +202,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ userId }) => {
           headerToolbar={{
             left: "prev,next today",
             center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
           initialView="dayGridMonth"
           editable={true}

@@ -52,7 +52,7 @@ const Calendar: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full px-10 gap-1">
-      <h2 className="py-10 text-2xl font-extrabold">Events</h2>
+      <h2 className="py-10 text-2xl font-extrabold">Calendar</h2>
       <div className="mb-8">
         <FullCalendar
           height={"70vh"}
@@ -60,7 +60,7 @@ const Calendar: React.FC = () => {
           headerToolbar={{
             left: "prev,next today",
             center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
           initialView="dayGridMonth"
           editable={false}

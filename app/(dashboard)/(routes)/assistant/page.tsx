@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { Send, Trash2, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface Message {
   sender: string;
@@ -33,9 +34,11 @@ const AssistantPage: React.FC = () => {
   const username = user ? user.firstName || user.username || "User" : "User";
   const userId = user ? user.id : "";
 
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -49,6 +52,9 @@ const AssistantPage: React.FC = () => {
               text: msg.message,
             }));
             setMessages(chatMessages);
+            if (chatMessages.length > 0) {
+              setShowWelcome(false);
+            }
           }
         } catch (error) {
           console.error("Error fetching chat history:", error);
@@ -68,6 +74,8 @@ const AssistantPage: React.FC = () => {
       setMessages((prev) => [...prev, userMessage]);
       setInput("");
       setIsTyping(true);
+      setShowWelcome(false);
+      router.refresh(); 
 
       const assistantReply = await fetchGeminiResponse(input, userId);
       setMessages((prev) => [
@@ -84,32 +92,40 @@ const AssistantPage: React.FC = () => {
     try {
       await axios.delete("/api/ai", { data: { userId } });
       setMessages([]);
+      setShowWelcome(true);
+      router.refresh(); 
     } catch (error) {
       console.error("Error deleting chat history:", error);
     }
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto h-[calc(100vh-2rem)] flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">Chat Assistant</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-grow overflow-hidden">
-        <ScrollArea className="h-full pr-4">
-          <div className="space-y-4">
+    <div className="flex flex-col h-screen bg-gray-50 text-gray-900">
+      <div className="flex-grow overflow-hidden relative">
+        {showWelcome && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-2xl font-bold text-sky-700">
+              Hi, I am Robert your Virtual Coaching Assistant
+            </div>
+          </div>
+        )}
+        <ScrollArea className="h-full px-4">
+          <div className="max-w-3xl mx-auto space-y-8 py-8">
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={`flex ${
+                className={cn(
+                  "flex",
                   message.sender === "Assistant" ? "justify-start" : "justify-end"
-                }`}
+                )}
               >
                 <div
-                  className={`flex items-start space-x-2 max-w-[80%] ${
-                    message.sender === "Assistant" ? "flex-row" : "flex-row-reverse"
-                  }`}
+                  className={cn(
+                    "flex items-start space-x-3 max-w-[80%]",
+                    message.sender === "Assistant" ? "flex-row" : "flex-row-reverse space-x-reverse"
+                  )}
                 >
-                  <Avatar className="w-8 h-8">
+                  <Avatar className="w-8 h-8 flex-shrink-0">
                     <AvatarImage
                       src={message.sender === "Assistant" ? "/ai-avatar.png" : user?.imageUrl}
                       alt={message.sender}
@@ -119,11 +135,12 @@ const AssistantPage: React.FC = () => {
                     </AvatarFallback>
                   </Avatar>
                   <div
-                    className={`rounded-lg p-3 ${
-                      message.sender === "Assistant"
-                        ? "bg-secondary text-secondary-foreground"
-                        : "bg-primary text-primary-foreground"
-                    }`}
+                    className={cn(
+                      "rounded-2xl px-4 py-2",
+                      message.sender === "Assistant" 
+                        ? "bg-blue-100 text-blue-900" 
+                        : "bg-green-100 text-green-900"
+                    )}
                   >
                     {message.text}
                   </div>
@@ -132,30 +149,39 @@ const AssistantPage: React.FC = () => {
             ))}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-secondary text-secondary-foreground rounded-lg p-3">
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                <div className="bg-blue-100 rounded-2xl px-4 py-2">
+                  <div className="w-8 h-4 flex items-center space-x-1">
+                    <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" />
+                    <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce [animation-delay:0.2s]" />
+                    <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce [animation-delay:0.4s]" />
+                  </div>
                 </div>
               </div>
             )}
             <div ref={endOfMessagesRef} />
           </div>
         </ScrollArea>
-      </CardContent>
-      <CardFooter className="border-t pt-4">
+      </div>
+      <div className="border-t border-gray-200 p-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             sendMessage();
           }}
-          className="flex w-full space-x-2"
+          className="max-w-3xl mx-auto flex space-x-4"
         >
-          <Textarea
+          <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message here..."
-            className="flex-grow"
+            placeholder="Message..."
+            className="flex-grow p-4 text-sm bg-white border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-900 placeholder:text-gray-500 rounded-full placeholder:pl-8"
           />
-          <Button type="submit" size="icon" disabled={isTyping}>
+          <Button 
+            type="submit" 
+            size="icon" 
+            disabled={isTyping}
+            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full"
+          >
             <Send className="h-4 w-4" />
           </Button>
           <Button
@@ -163,13 +189,15 @@ const AssistantPage: React.FC = () => {
             size="icon"
             variant="destructive"
             onClick={deleteChatHistory}
+            className="bg-red-500 text-white hover:bg-red-600 rounded-full"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         </form>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };
 
 export default AssistantPage;
+
