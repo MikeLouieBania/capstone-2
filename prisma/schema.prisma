@@ -120,8 +120,26 @@ model Event {
 
 model ChatMessage {
   id        Int      @id @default(autoincrement())
+  chatId    String
   userId    String   
   sender    String   
   message   String
   timestamp DateTime @default(now())
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
 }
+
+model Chat {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages ChatMessage[]
+
+  @@index([userId])
+}
+
