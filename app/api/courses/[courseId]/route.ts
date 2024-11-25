@@ -1,5 +1,4 @@
 import { db } from "@/lib/db";
-import { isTeacher } from "@/lib/teacher";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -9,7 +8,7 @@ export async function DELETE(
 ) {
   try {
     const { userId } = auth();
-    if (!userId || !isTeacher(userId)) {
+    if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -23,7 +22,7 @@ export async function DELETE(
     if (!course) {
       return new NextResponse("Not found", { status: 404 });
     }
-    
+
     const deletedCourse = await db.course.delete({
       where: {
         id: params.courseId,
@@ -46,18 +45,18 @@ export async function PATCH(
     const { courseId } = params;
     const values = await req.json();
 
-    if (!userId || !isTeacher(userId)) {
+    if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const course = await db.course.update({
-        where: {
-            id: courseId,
-            userId
-        },
-        data: {
-            ...values,
-        }
+      where: {
+        id: courseId,
+        userId,
+      },
+      data: {
+        ...values,
+      },
     });
 
     return NextResponse.json(course);

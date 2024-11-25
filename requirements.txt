@@ -1,1 +1,16 @@
 
+#NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_bmVlZGVkLXRlcnJpZXItMTMuY2xlcmsuYWNjb3VudHMuZGV2JA
+
+#CLERK_SECRET_KEY=sk_test_7fFO0oxS9X2oz7gE9mgbJnwREb5VpbFYgB6LgbSYvB
+#NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+#NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+#NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+#NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+
+#NEXT_PUBLIC_TEACHER_ID=user_2mISzSZxmO2mLSHcO2ZdWyPUx97 / NO NEED FOR THIS
+
+#DATABASE_URL="postgresql://capstonedb_owner:v2SR5DMBiwbW@ep-silent-pine-a19eodr7.ap-southeast-1.aws.neon.tech/capstonedb?sslmode=require"
+
+#GEMINI_API_KEY="AIzaSyBLtvsmeNzzNqLgAAb-GTj0_FM8xvWSFIY" 
+
+#NEXT_PUBLIC_BASE_URL=http://localhost:300
